@@ -1,3 +1,4 @@
 .venv
 env_variables.sh
 __pycache__
+migrations
