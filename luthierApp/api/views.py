@@ -26,13 +26,34 @@ def get_listings(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
+def get_listing(request, pk):
+    listing = Listing.objects.get(id=pk)
+    serializer = ListingSerializer(listing, many=False)
+    return Response(serializer.data)
+
+
+############### dict entity views
+
+@api_view(['GET'])
+def get_categories(request):
+    categories = Category.objects.all()
+    serializer = CategorySerializer(categories, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
 def get_brands(request):
     brands = Brand.objects.all()
     serializer = BrandSerializer(brands, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
-def get_listing(request, pk):
-    listing = Listing.objects.get(_id=pk)
-    serializer = ListingSerializer(listing, many=False)
+def get_statuses(request):
+    statuses = Status.objects.all()
+    serializer = StatusSerializer(statuses, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_payment_methods(request):
+    payment_methods = PaymentMethod.objects.all()
+    serializer = PaymentMethodSerializer(payment_methods, many=True)
     return Response(serializer.data)
