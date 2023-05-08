@@ -31,6 +31,30 @@ def get_listing(request, pk):
     serializer = ListingSerializer(listing, many=False)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def get_luthiers(request):
+    luthier = LuthierProfile.objects.all()
+    serializer = LuthierProfileSerializer(luthier, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_luthier(request, pk):
+    luthier = LuthierProfile.objects.get(id=pk)
+    serializer = LuthierProfileSerializer(luthier, many=False)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_customers(request):
+    customer = CustomerProfile.objects.all()
+    serializer = CustomerProfileSerializer(customer, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_customer(request, pk):
+    customer = CustomerProfile.objects.get(id=pk)
+    serializer = CustomerProfileSerializer(customer, many=False)
+    return Response(serializer.data)
 
 ############### dict entity views
 

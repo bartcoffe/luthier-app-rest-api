@@ -2,6 +2,18 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
+
+class LuthierProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    about = models.TextField(null=False, blank=False)
+    def __str__(self):
+        return self.user.first_name
+
+class CustomerProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.user.first_name
+
 class Category(models.Model):
     name = models.CharField(max_length=200, null=False, blank=False)
     class Meta:
@@ -17,7 +29,7 @@ class Brand(models.Model):
 class Listing(models.Model):
     title = models.CharField(max_length=200, null=False, blank=False)
     description = models.TextField(null=False, blank=False)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    customer = models.ForeignKey(CustomerProfile, on_delete=models.SET_NULL, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     instrument_brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True)
@@ -32,6 +44,14 @@ class ListingPictureUrl(models.Model):
 
     def __str__(self):
         return self.url
+    
+class ProfilePictureUrl(models.Model):
+    profile = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    url = models.CharField(max_length=200, null=False, blank=False)
+
+    def __str__(self):
+        return self.url
+
 
     
 class Status(models.Model):
@@ -62,7 +82,7 @@ class ShippingAddress(models.Model):
         return f'{self.street} {self.number} {self.city}'
     
 class Order(models.Model):
-    luthier = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    luthier = models.ForeignKey(LuthierProfile, on_delete=models.SET_NULL, null=True)
     listing = models.ForeignKey(Listing, on_delete=models.SET_NULL, null=True)
     current_status = models.ForeignKey(Status, on_delete=models.SET_NULL, null=True)
     payment_method = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True)
