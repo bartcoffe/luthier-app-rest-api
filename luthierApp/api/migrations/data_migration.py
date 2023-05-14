@@ -50,6 +50,9 @@ def populate_dict_table(
     model.objects.bulk_create(rows)
 
 
+def create_superuser():
+    ...
+
 
 class Migration(migrations.Migration):
 
