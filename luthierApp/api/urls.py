@@ -4,8 +4,11 @@ from . import views
 urlpatterns = [
     # api paths list
     path('', views.index, name='index'),
-    # register
+    # register, login
     path('register/', views.register, name='register'),
+    path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
+    path('user/', views.auth_user, name='authenticated user'),
     # listings
     path('listings/', views.get_listings, name='listings'),
     path('listings/<str:pk>', views.get_listing, name='listing'),
