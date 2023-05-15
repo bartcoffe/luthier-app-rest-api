@@ -7,14 +7,16 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('user/', views.currently_logged_user, name='authenticated user'),
-    # listings
-    path('listings/', views.listings, name='listings'),
-    path('listings/<str:pk>', views.listing, name='listing'),
     # luthiers
     path('luthiers/', views.luthiers, name='luthiers'),
     path('luthiers/<str:pk>', views.luthier, name='luthier'),
     #customers
     path('customers/<str:pk>', views.customer, name='customer'),
+    # listings
+    path('listings/', views.listings, name='listings'),
+    path('listings/<str:pk>', views.listing, name='listing'),
+    # orders
+    path('orders/', views.orders, name='orders'),
     # dict entities
     path('categories/', views.get_categories, name='categories'),
     path('brands/', views.get_brands, name='brands'),

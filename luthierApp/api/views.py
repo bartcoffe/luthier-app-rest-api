@@ -95,7 +95,7 @@ def listings(request):
     user_type = payload['user_type']
     if request.method == 'GET':
         if user_type == 1:       
-            listings = Listing.objects.filter(customer_id = payload['id'])
+            listings = Listing.objects.filter(customer = payload['id'])
         elif user_type == 2:
             listings = Listing.objects.all()
         serializer = ListingSerializer(listings, many=True)
@@ -117,7 +117,21 @@ def listing(request, pk):
     serializer = ListingSerializer(listing, many=False)
     return Response(serializer.data)
 
-
+@api_view(['GET', 'POST'])
+@permission_classes([IsLuthierPermission])
+def orders(request):
+    token = request.COOKIES.get('jwt')
+    payload = jwt.decode(token.encode('utf-8'), SYMMETRICAL_KEY, algorithms=['HS256'])
+    if request.method == 'GET':    
+        orders = Order.objects.filter(luthier = payload['id'])
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        request.data['luthier'] = payload['id']
+        serializer = OrderSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 ############### dict entity views
 
