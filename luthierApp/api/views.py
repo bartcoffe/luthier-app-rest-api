@@ -32,7 +32,7 @@ def login(request):
     return jwt_cookie_response(user=user, expiration_min=60)
 
 @api_view((['GET']))
-def auth_user(request):
+def currently_logged_user(request):
     token = request.COOKIES.get('jwt')
     if not token:
         raise AuthenticationFailed('unauthenticated')
@@ -54,55 +54,52 @@ def logout(request):
     }
     return response
 
-@api_view((['GET']))
-def index(request):
-    routes = [
-        # register
-        '/api/register/',
-        # listings
-        '/api/listings',
-        '/api/listings/<id>/',
-        '/api/listings/create',
-        '/api/listings/delete/<id>/',
-        # orders
-        '/api/products/<update>/<id>/',
-        # dict tables
-        '/api/categories/',
-        '/api/brands/',
-        '/api/statuses/',
-        '/api/payment_methods/',
-
-    ]
-    return Response(routes)
-
-
 @api_view(['GET'])
 @permission_classes([IsLuthierPermission])
-def get_listings(request):
+def listings(request):
     listings = Listing.objects.all()
     serializer = ListingSerializer(listings, many=True)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
-@permission_classes([IsLuthierPermission])
-def get_listing(request, pk):
+@permission_classes([IsLuthierPermission | AccessSelfUserDataOnlyPermission])
+def listing(request, pk):
     listing = Listing.objects.get(id=pk)
     serializer = ListingSerializer(listing, many=False)
     return Response(serializer.data)
 
-
 @api_view(['GET'])
-def get_luthiers(request):
+def luthiers(request):
     luthier = LuthierProfile.objects.all()
     serializer = LuthierProfileSerializer(luthier, many=True)
     return Response(serializer.data)
 
-@api_view(['GET'])
-def get_luthier(request, pk):
+@api_view(['GET', 'PUT'])
+@permission_classes([AccessSelfUserDataOnlyPermission])
+def luthier(request, pk):
     luthier = LuthierProfile.objects.get(user_id=pk)
-    serializer = LuthierProfileSerializer(luthier, many=False)
-    return Response(serializer.data)
+    if request.method == 'GET':
+        serializer = LuthierProfileSerializer(luthier, many=False)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = LuthierProfileSerializer(luthier, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+@api_view(['GET', 'PUT'])
+@permission_classes([AccessSelfUserDataOnlyPermission])
+def customer(request, pk):
+    customer = CustomerProfile.objects.get(user_id=pk)
+    if request.method == 'GET':
+        serializer = CustomerProfileSerializer(customer, many=False)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = CustomerProfileSerializer(customer, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
 
 
 ############### dict entity views

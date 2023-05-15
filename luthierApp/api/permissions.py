@@ -24,7 +24,7 @@ def valdidate_user_exist_in_db_and_token_expiry(request):
 
 class IsUserPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        payload = valdidate_user_exist_in_db_and_token_expiry(request)  
+        payload = valdidate_user_exist_in_db_and_token_expiry(request)
         return True if payload else False
 
 class IsLuthierPermission(permissions.BasePermission):
@@ -34,3 +34,12 @@ class IsLuthierPermission(permissions.BasePermission):
             if payload['user_type'] == 2:
                 return True
             return False
+        return False
+
+
+class AccessSelfUserDataOnlyPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        user_id = int(request.parser_context['kwargs']['pk'])
+        payload = valdidate_user_exist_in_db_and_token_expiry(request)
+        return True if payload['id'] == user_id else False
+        

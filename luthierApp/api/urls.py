@@ -2,19 +2,19 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # api paths list
-    path('', views.index, name='index'),
     # register, login
     path('register/', views.register, name='register'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
-    path('user/', views.auth_user, name='authenticated user'),
+    path('user/', views.currently_logged_user, name='authenticated user'),
     # listings
-    path('listings/', views.get_listings, name='listings'),
-    path('listings/<str:pk>', views.get_listing, name='listing'),
+    path('listings/', views.listings, name='listings'),
+    path('listings/<str:pk>', views.listing, name='listing'),
     # luthiers
-    path('luthiers/', views.get_luthiers, name='listing'),
-    path('luthiers/<str:pk>', views.get_luthier, name='listing'),
+    path('luthiers/', views.luthiers, name='luthiers'),
+    path('luthiers/<str:pk>', views.luthier, name='luthier'),
+    #customers
+    path('customers/<str:pk>', views.customer, name='customer'),
     # dict entities
     path('categories/', views.get_categories, name='categories'),
     path('brands/', views.get_brands, name='brands'),

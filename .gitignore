@@ -2,3 +2,4 @@
 env_variables.sh
 __pycache__
 start_db_steps.txt
+migrations

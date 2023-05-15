@@ -37,6 +37,21 @@ class LuthierProfileSerializer(serializers.ModelSerializer):
             if key not in unwanted_user_info:
                 data.update({key: val})
         return data
+    
+class CustomerProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    class Meta:
+        model = CustomerProfile
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        unwanted_user_info = ['user_type']
+        data = super(CustomerProfileSerializer, self).to_representation(instance)
+        user = data.pop('user')
+        for key, val in user.items():
+            if key not in unwanted_user_info:
+                data.update({key: val})
+        return data
 
 
 class ListingSerializer(serializers.ModelSerializer):

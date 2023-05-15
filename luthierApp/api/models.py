@@ -57,6 +57,7 @@ class LuthierProfile(models.Model):
     
 class CustomerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True,related_name="customer_profile")
+    nickname = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
