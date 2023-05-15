@@ -27,11 +27,22 @@ class IsUserPermission(permissions.BasePermission):
         payload = valdidate_user_exist_in_db_and_token_expiry(request)
         return True if payload else False
 
+
 class IsLuthierPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         payload = valdidate_user_exist_in_db_and_token_expiry(request)
         if payload:
             if payload['user_type'] == 2:
+                return True
+            return False
+        return False
+    
+
+class PostOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == 'POST':
+            payload = valdidate_user_exist_in_db_and_token_expiry(request)
+            if payload:
                 return True
             return False
         return False

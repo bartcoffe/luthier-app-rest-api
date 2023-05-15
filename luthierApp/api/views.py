@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import AuthenticationFailed
 import jwt
-
+from rest_framework import status
 
 from .models import *
 from .serializers import *
@@ -54,20 +54,6 @@ def logout(request):
     }
     return response
 
-@api_view(['GET'])
-@permission_classes([IsLuthierPermission])
-def listings(request):
-    listings = Listing.objects.all()
-    serializer = ListingSerializer(listings, many=True)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-@permission_classes([IsLuthierPermission | AccessSelfUserDataOnlyPermission])
-def listing(request, pk):
-    listing = Listing.objects.get(id=pk)
-    serializer = ListingSerializer(listing, many=False)
-    return Response(serializer.data)
 
 @api_view(['GET'])
 def luthiers(request):
@@ -100,6 +86,31 @@ def customer(request, pk):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        
+@api_view(['GET', 'POST'])
+@permission_classes([IsLuthierPermission | PostOnly])
+def listings(request):
+    if request.method == 'GET':
+        listings = Listing.objects.all()
+        serializer = ListingSerializer(listings, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        token = request.COOKIES.get('jwt')
+        customer_id = jwt.decode(token.encode('utf-8'), SYMMETRICAL_KEY, algorithms=['HS256'])['id']
+        request.data['customer'] = customer_id
+        serializer = ListingSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED) 
+
+
+@api_view(['GET'])
+@permission_classes([IsLuthierPermission | AccessSelfUserDataOnlyPermission])
+def listing(request, pk):
+    listing = Listing.objects.get(id=pk)
+    serializer = ListingSerializer(listing, many=False)
+    return Response(serializer.data)
+
 
 
 ############### dict entity views
