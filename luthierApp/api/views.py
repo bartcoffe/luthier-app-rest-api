@@ -132,6 +132,14 @@ def orders(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+@api_view(['GET'])
+@permission_classes([IsUserPermission])
+def order_for_listing(request, listing):
+    order = Order.objects.get(listing=listing)
+    serializer = OrderSerializer(order, many=False)
+    return Response(serializer.data)
+
 
 ############### dict entity views
 

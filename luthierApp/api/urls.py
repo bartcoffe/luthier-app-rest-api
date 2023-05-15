@@ -17,6 +17,7 @@ urlpatterns = [
     path('listings/<str:pk>', views.listing, name='listing'),
     # orders
     path('orders/', views.orders, name='orders'),
+    path('orders/listing/<str:listing>', views.order_for_listing, name='order_for_listing'),
     # dict entities
     path('categories/', views.get_categories, name='categories'),
     path('brands/', views.get_brands, name='brands'),
