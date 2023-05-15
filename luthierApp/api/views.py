@@ -1,7 +1,7 @@
 import datetime
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import PermissionDenied
 import jwt
 from rest_framework import status
 
@@ -26,20 +26,20 @@ def login(request):
     password = request.data['password']
     user = User.objects.get(email=email)
     if user is None:
-        raise AuthenticationFailed('user not found')
+        raise PermissionDenied('user not found')
     if not user.check_password(password):
-        raise AuthenticationFailed('incorrect password')
+        raise PermissionDenied('incorrect password')
     return jwt_cookie_response(user=user, expiration_min=60)
 
 @api_view((['GET']))
 def currently_logged_user(request):
     token = request.COOKIES.get('jwt')
     if not token:
-        raise AuthenticationFailed('unauthenticated')
+        raise PermissionDenied('unauthenticated')
     try:
         payload = jwt.decode(token, SYMMETRICAL_KEY, algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
-        raise AuthenticationFailed('unauthenticated')
+        raise PermissionDenied('unauthenticated')
     user = User.objects.get(id=payload['id'])
     serializer = UserSerializer(user)
     return Response(serializer.data)
@@ -86,22 +86,28 @@ def customer(request, pk):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        
+    
 @api_view(['GET', 'POST'])
-@permission_classes([IsLuthierPermission | PostOnly])
+@permission_classes([IsUserPermission])
 def listings(request):
+    token = request.COOKIES.get('jwt')
+    payload = jwt.decode(token.encode('utf-8'), SYMMETRICAL_KEY, algorithms=['HS256'])
+    user_type = payload['user_type']
     if request.method == 'GET':
-        listings = Listing.objects.all()
+        if user_type == 1:       
+            listings = Listing.objects.filter(customer_id = payload['id'])
+        elif user_type == 2:
+            listings = Listing.objects.all()
         serializer = ListingSerializer(listings, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
-        token = request.COOKIES.get('jwt')
-        customer_id = jwt.decode(token.encode('utf-8'), SYMMETRICAL_KEY, algorithms=['HS256'])['id']
-        request.data['customer'] = customer_id
-        serializer = ListingSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED) 
+        if user_type == 1:
+            request.data['customer'] = payload['id']
+            serializer = ListingSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+        raise PermissionDenied
 
 
 @api_view(['GET'])
