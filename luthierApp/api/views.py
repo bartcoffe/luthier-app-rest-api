@@ -97,7 +97,7 @@ def listings(request):
         if user_type == 1:       
             listings = Listing.objects.filter(customer = payload['id'])
         elif user_type == 2:
-            listings = Listing.objects.all()
+            listings = Listing.objects.filter(is_visible = True)
         serializer = ListingSerializer(listings, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
