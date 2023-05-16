@@ -95,6 +95,7 @@ class Listing(models.Model):
                                          on_delete=models.SET_NULL,
                                          null=True)
     year_produced = models.IntegerField(null=True, blank=True)
+    is_visible = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title
@@ -207,6 +208,19 @@ def create_user_profile(sender, **kwargs):
         if created:
             LuthierProfile.objects.create(user=user_instance)
 
+def hide_listing_when_order_is_taken(sender, **kwargs):
+    """
+    when a luthier takes a job (clicks on a listing effectively making a POST request to create an order for a given lisitng)
+    the new Order entry is created and the listing is being updated so that it's not visible to other luthiers. 
+    """
+    order_instance = kwargs['instance']
+    created = kwargs['created']
+    if created:
+        listing = getattr(order_instance, 'listing')
+        listing.is_visible = False
+        listing.save()
+
 
 post_save.connect(create_order_status_entry, sender=Order)
 post_save.connect(create_user_profile, sender=User)
+post_save.connect(hide_listing_when_order_is_taken, sender=Order)
